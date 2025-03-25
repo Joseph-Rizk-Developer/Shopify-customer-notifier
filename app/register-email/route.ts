@@ -8,7 +8,7 @@ const client = createAdminApiClient({
   accessToken: process.env.ACCESS_TOKEN!,
 });
 
-async function getEmailsForProduct(): Promise<string[]> {
+async function getEmailsForProduct(productId: string): Promise<string[]> {
   const operation = `
     query ProductMetafield($namespace: String!, $key: String!, $ownerId: ID!) {
       product(id: $ownerId) {
@@ -23,16 +23,22 @@ async function getEmailsForProduct(): Promise<string[]> {
     variables: {
       namespace: "custom",
       key: "customer_emails",
-      ownerId: "gid://shopify/Product/14662395396461", //Need to get the id from the form
+      ownerId: `gid://shopify/Product/${productId}`, //Need to get the id from the form
     },
   });
 
 
 
-  return  JSON.parse(data.product.emails.value)
+  console.log(data, errors)
+  const emails = data.product.emails?.value
+  
+  if(!emails){
+    return []
+  }
+  return  JSON.parse(emails)
 }
 
-async function updateProductEmails(emailToAdd: string, currentEmails: string[]) {
+async function updateProductEmails(emailToAdd: string, currentEmails: string[] , productId: string) {
   const operation = `
   mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
      metafieldsSet(metafields: $metafields) {
@@ -61,7 +67,7 @@ const emails = [...currentEmails, emailToAdd]
        {
          namespace: "custom",
          key: "customer_emails",
-         ownerId: "gid://shopify/Product/14662395396461", //need to get this from the form (same value as above)
+         ownerId: `gid://shopify/Product/${productId}`, //need to get this from the form (same value as above)
          type: "list.single_line_text_field",
          value: JSON.stringify(emails),
        },
@@ -75,9 +81,10 @@ const emails = [...currentEmails, emailToAdd]
 export async function POST(request: Request) {
   // Parse the request body
   const body = await request.json();
-  const { email } = body;
+  const { email, productId } = body;
 
-  const currentEmails = await getEmailsForProduct()
+
+  const currentEmails = await getEmailsForProduct(productId)
   
   const email_already_exists = currentEmails.find(e => e == email)
 
@@ -85,6 +92,6 @@ if(email_already_exists) {
     return NextResponse.json({ message: "This email is already in the list" }, { status: 400 });
 }
 
-  const result = await updateProductEmails(email, currentEmails)
+  const result = await updateProductEmails(email, currentEmails, productId)
   return NextResponse.json(result);
 }
