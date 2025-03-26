@@ -35,7 +35,7 @@ const client = createAdminApiClient({
 //   return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
 // }
 
-async function GET_CUSTOMER(customerId: string) {
+async function GET(customerId: string) {
   const operation = `
     query GetCustomer($id: ID!) {
       customer(id: $id) {
@@ -45,6 +45,7 @@ async function GET_CUSTOMER(customerId: string) {
         email
         phone
         createdAt
+        tag
        
       }
     }
@@ -52,22 +53,49 @@ async function GET_CUSTOMER(customerId: string) {
 
   const { data, errors } = await client.request(operation, {
     variables: {
-      id: `gid://shopify/Customer/${customerId}`, // Replace with the actual customer ID
+      id: `gid://shopify/Customer/22978335048045`, // Replace with the actual customer ID
     },
   });
 
   // console.log(errors);
-    console.log("DATA LOG: " + data.customer.email);
+   //  console.log("DATA LOG: " + data.customer.variantId);
 
   return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
 }
 
+
+
+// export async function PATCH(customerId: string , tag: string){
+// const operation = `#graphql
+// mutation addTags($id: ID!, $tags: [String!]!) {
+//   tagsAdd(id: $id, tags: $tags) {
+//     node {
+//       id
+//     }
+//     userErrors {
+//       message
+//     }
+//   }
+// }`;
+// const {data, errors} = await client.request(operation, {
+//   variables: {
+//     "id": `gid://shopify/Customer/${customerId}`,
+//       "tags": `${tag}`
+//   }
+// })
+
+// return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
+// }
+
+
+ // Final code 
 export async function POST(request: Request){
-const body = await request.json()
-
-console.log("body LOG: " + body.customerId);
-GET_CUSTOMER(body.customerId)
-
-return NextResponse.json({message: body})
-
-}
+  const body = await request.json()
+  console.log("Variant id: " + body.variantId)
+  console.log("Product id: " + body.productId)
+  
+ // GET(body.customerId)
+  
+  return NextResponse.json({message: body})
+  
+  }
