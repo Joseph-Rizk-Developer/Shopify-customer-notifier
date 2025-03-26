@@ -65,36 +65,36 @@ async function GET(customerId: string) {
 
 
 
-// export async function PATCH(customerId: string , tag: string){
-// const operation = `#graphql
-// mutation addTags($id: ID!, $tags: [String!]!) {
-//   tagsAdd(id: $id, tags: $tags) {
-//     node {
-//       id
-//     }
-//     userErrors {
-//       message
-//     }
-//   }
-// }`;
-// const {data, errors} = await client.request(operation, {
-//   variables: {
-//     "id": `gid://shopify/Customer/${customerId}`,
-//       "tags": `${tag}`
-//   }
-// })
+export async function PATCH(customerId: string , productId: string , variantId: string){
+const operation = `#graphql
+mutation addTags($id: ID!, $tags: [String!]!) {
+  tagsAdd(id: $id, tags: $tags) {
+    node {
+      id
+    }
+    userErrors {
+      message
+    }
+  }
+}`;
+const {data, errors} = await client.request(operation, {
+  variables: {
+    "id": `gid://shopify/Customer/${customerId}`,
+      "tags": `${productId} , ${variantId}`
+  }
+})
 
-// return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
-// }
+return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
+}
 
 
  // Final code 
 export async function POST(request: Request){
   const body = await request.json()
-  console.log("Variant id: " + body.variantId)
-  console.log("Product id: " + body.productId)
+  // console.log("Variant id: " + body.variantId)
+  // console.log("Product id: " + body.productId)
   
- // GET(body.customerId)
+ PATCH(body.customerId, body.productId, body.variantId)
   
   return NextResponse.json({message: body})
   
