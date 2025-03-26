@@ -24,6 +24,7 @@ async function getEmailsForProduct(productId: string): Promise<string[]> {
       namespace: "custom",
       key: "customer_emails",
       ownerId: `gid://shopify/Product/${productId}`, //Need to get the id from the form
+
     },
   });
 
