@@ -35,7 +35,7 @@ const client = createAdminApiClient({
 //   return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
 // }
 
-export async function GET_CUSTOMER(customerId: string) {
+async function GET_CUSTOMER(customerId: string) {
   const operation = `
     query GetCustomer($id: ID!) {
       customer(id: $id) {
