@@ -53,12 +53,12 @@ async function GET(customerId: string) {
 
   const { data, errors } = await client.request(operation, {
     variables: {
-      id: `gid://shopify/Customer/22978335048045`, // Replace with the actual customer ID
+      id: `gid://shopify/Customer/22987942166893`, // Replace with the actual customer ID
     },
   });
 
   // console.log(errors);
-   //  console.log("DATA LOG: " + data.customer.variantId);
+     console.log("DATA LOG: " + data.customer.variantId);
 
   return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
 }
@@ -91,7 +91,7 @@ return NextResponse.json({ data, error: JSON.stringify(errors, null, 2) });
  // Final code 
 export async function POST(request: Request){
   const body = await request.json()
-  // console.log("Variant id: " + body.variantId)
+   console.log("Variant id: " + body.variantId)
   // console.log("Product id: " + body.productId)
   
  PATCH(body.customerId, body.productId, body.variantId)
