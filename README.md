@@ -1,42 +1,67 @@
-# Shopify-customer-notifier
+# Back-in-Stock Notifier — Shopify App
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+A Shopify app that lets customers subscribe to **back-in-stock notifications** for specific products (and optionally variants). When inventory is replenished, the app works alongside **Shopify Flow** and Shopify’s **customer tagging** to automate the notification workflow and keep subscription handling scalable and low-maintenance.
 
-## Getting Started
+## Purpose of the App
+Out-of-stock items create lost revenue and manual follow-ups. This app captures customer intent at the product level and turns it into an automated process: customers subscribe once, your store tracks it reliably, and notifications can be triggered automatically when stock returns.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Key Features
+- **Customer opt-in capture** for back-in-stock alerts (email address + product/variant)
+- **Product-specific subscriptions** so customers only receive relevant notifications
+- **Shopify Flow integration** to trigger automations (tagging, scheduling, sending emails, internal alerts)
+- **Customer tagging support** for segmentation, tracking, and downstream workflows
+- **Admin-friendly workflow** that reduces manual support effort
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/route.ts`. The page auto-updates as you edit the file.
+## How it works (high level)
+1. Customer submits their email for a specific product (or variant).
+2. The app records the subscription and applies/updates **customer tags** to represent interest.
+3. When inventory changes (restock), **Shopify Flow** detects the event and uses tags/subscription data to:
+   - trigger email sends via your chosen email provider, and/or
+   - notify internal teams, and/or
+   - clean up tags after successful notification.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Tagging Strategy (example)
+> Adjust these to match your implementation.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `bis_subscribed` — customer is subscribed to at least one back-in-stock alert  
+- `bis_product_<handle-or-id>` — customer subscribed to a specific product  
+- `bis_variant_<id>` — customer subscribed to a specific variant (if applicable)  
+- `bis_notified_<handle-or-id>` — customer has been notified (optional, for audit/cleanup)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Shopify Flow Setup (example)
+Create a Flow that:
+- **Trigger:** Inventory quantity changed / Product variant back in stock  
+- **Conditions:** Inventory available > 0  
+- **Actions (typical):**
+  - Find customers by tag (e.g., `bis_variant_<id>` or `bis_product_<handle>`)
+  - Send email via your email tool (Klaviyo / Omnisend / Shopify Email / custom endpoint)
+  - Remove subscription tags or add `bis_notified_*` tag after sending
+  - Optional: Slack/email internal notification for high-demand items
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Local Development (template)
+> Replace placeholders with your actual setup.
 
-## API Routes
+### Prerequisites
+- Next.js (LTS recommended)
+- Shopify Partner account + development store
+- Shopify CLI
 
-This directory contains example API routes for the headless API app.
+### Environment Variables
+Create a `.env` file with:
+- `SHOPIFY_API_KEY=...`
+- `SHOPIFY_API_SECRET=...`
+- `SCOPES=...`
+- `APP_URL=...`
+- `DATABASE_URL=...` (if you store subscriptions)
+- `EMAIL_PROVIDER_KEY=...` (if your app sends emails directly)
 
-For more details, see [route.js file convention](https://nextjs.org/docs/app/api-reference/file-conventions/route).
